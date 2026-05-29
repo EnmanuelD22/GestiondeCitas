@@ -34,7 +34,7 @@ namespace GestiondeCitas.Modelos
         protected string ExtraerNumeros(string entrada)
         {
             if (string.IsNullOrWhiteSpace(entrada)) return "";
-            return Regex.Replace(entrada, @"[^\d", "");
+            return Regex.Replace(entrada, @"\D+", "");
         }
 
         protected string LimpiarCedula(string entrada)
