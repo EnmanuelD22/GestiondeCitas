@@ -1,9 +1,10 @@
-﻿using GestiondeCitas.Servicios;
+﻿using GestiondeCitas.Datos;
 using GestiondeCitas.Modelos;
-using GestiondeCitas.Datos;
 using GestiondeCitas.Presentacion.UI;
-using System.Security.Cryptography.X509Certificates;
 using GestiondeCitas.Servicios;
+using GestiondeCitas.Servicios;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 
 class Program
 {
@@ -65,17 +66,44 @@ class Program
         Console.WriteLine("╚═══════════════════════════════════════════════════════════════╝");
         Console.Write("Nombre: ");
         string nombre = Console.ReadLine();
-        Console.Write("DNI: ");
-        string dni = Console.ReadLine();
-        Console.Write("Tel: ");
-        string telefono = Console.ReadLine();
-        Paciente paciente = new Paciente(nombre, dni, telefono);
+        string dni = CapturarCedula();
+        string tel = CapturarTelefono();
+        Paciente paciente = new Paciente(nombre, dni, tel);
         pacientes.Guardar(paciente);
         Console.WriteLine("Paciente agregado de manera exitosa.");
         Console.ReadKey();
     }
     public static void RegistrarMedico()
     {
+        EspecialidadService especialidad = new EspecialidadService(especialidades);
+        Console.Clear();
+        Console.WriteLine("╔═══════════════════════════════════════════════════════════════╗");
+        Console.WriteLine("                    Ingrese la nueva Médico                      ");
+        Console.WriteLine("╚═══════════════════════════════════════════════════════════════╝");
+        Console.Write("Nombre: ");
+        string nombre = Console.ReadLine();
+        string dni = CapturarCedula();
+        string tel = CapturarTelefono();
+        string esp = validarEspecialidad(especialidad);
+        Console.WriteLine("");
+
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("╔═══════════════════════════════════════════════════════════════╗");
+        Console.ResetColor();
+        Console.WriteLine("                        H O R A R I O                            ");
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("╚═══════════════════════════════════════════════════════════════╝");
+        Console.ResetColor();
+
+
+        TimeOnly horaInicio = CapturarHora("Hora de Entrada (Ej. 08:00 AM):");
+        TimeOnly horaFin = CapturarHora("Hora de Salida (Ej. 05:00 PM):");
+        Console.ReadKey();
+
+        Medico medico = new Medico(nombre, dni, tel, esp, horaInicio, horaFin);
+
+
+
 
     }
     public static void GestionarEspecialidad(EspecialidadService especialidad)
@@ -122,7 +150,7 @@ class Program
     public static void ReprogramarCita() {
 
     }
-    public static void AgendarCita() {
+    public static void AgendarCita(Cita cita, Paciente paciente, Medico medico) {
 
     }
     public static void ConsultarporMedico() {
@@ -134,6 +162,129 @@ class Program
     }
     public static void Salir() {
 
+    }
+
+    public static string ExtraerNumeros(string entrada)
+    {
+        if (string.IsNullOrWhiteSpace(entrada)) return "";
+        return Regex.Replace(entrada, @"\D+", "");
+    }
+
+    public static string CapturarCedula()
+    {
+        int lineaActual = Console.CursorTop;
+        while (true)
+        {
+            Console.SetCursorPosition(0, lineaActual);
+            Console.Write(new string(' ', Console.WindowWidth - 1));
+
+            Console.SetCursorPosition(0, lineaActual);
+            Console.Write("Dni: ");
+            string entrada = Console.ReadLine();
+            string numeros = ExtraerNumeros(entrada);
+
+            if (numeros.Length == 11)
+            {
+                Console.SetCursorPosition(0, lineaActual + 1);
+                Console.Write(new string(' ', Console.WindowWidth - 1));
+
+                Console.SetCursorPosition(0, lineaActual + 1);
+                return $"{numeros.Substring(0, 3)}-" +
+                    $"{numeros.Substring(3, 7)}-{numeros.Substring(10, 1)}";
+            }
+            else
+            {
+                Console.Write(new string(' ', Console.WindowWidth - 1));
+                Console.SetCursorPosition(0, lineaActual + 1);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error. Asegúrese de ingresar un dni válido ");
+                Console.ResetColor();
+            }
+        }
+    }
+
+    public static string CapturarTelefono()
+    {
+        int lineaActual = Console.CursorTop;
+
+       while (true)
+        {
+            Console.SetCursorPosition(0, lineaActual);
+            Console.Write(new string(' ', Console.WindowWidth - 1));
+
+            Console.SetCursorPosition(0, lineaActual);
+            Console.Write("Tel: ");
+            string entrada = Console.ReadLine();
+            string numeros = ExtraerNumeros(entrada);
+
+            if (numeros.Length == 10)
+            {
+                
+                Console.Write(new string(' ', Console.WindowWidth - 1));
+                Console.SetCursorPosition(0, lineaActual + 1);
+                return $"+1({numeros.Substring(0, 3)})-{numeros.Substring(3, 3)}-" +
+               $"{numeros.Substring(6, 4)}";
+            } else
+            {
+               
+                Console.Write(new string(' ', Console.WindowWidth - 1));
+                Console.SetCursorPosition(0, lineaActual + 1);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error. Asegurese de insertar un telefono válido");
+                Console.ResetColor();
+            }
+        }
+    }
+
+    public static string validarEspecialidad(EspecialidadService especialidad)
+    {
+        var lista = especialidad.listarEspecialidades();
+
+        while (true)
+        {
+            Console.Write("Especialidad: ");
+            string entrada = Console.ReadLine();
+
+
+            for (int i = 0; i < lista.Count; i++)
+            {
+                Especialidad esp = lista[i];
+                if (esp.nombre.Trim().Equals(entrada, StringComparison.OrdinalIgnoreCase)) {
+                    return esp.nombre;
+                }
+            }
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Error. Esta especialidad no existe.");
+            Console.ResetColor();
+        }
+    }
+
+    public static TimeOnly CapturarHora(string texto)
+    {
+        int lineaActual = Console.CursorTop;
+
+        while (true)
+        {
+            Console.Write(new string(' ', Console.WindowWidth - 1));
+            Console.SetCursorPosition(0, lineaActual);
+            Console.Write(texto);
+            string entrada = Console.ReadLine();
+
+            if (TimeOnly.TryParse(entrada, out TimeOnly horaValidada))
+            {
+                Console.Write(new string(' ', Console.WindowWidth - 1));
+                Console.SetCursorPosition(0, lineaActual + 1);
+                return horaValidada;
+            } else
+            {
+                Console.Write(new string(' ', Console.WindowWidth - 1));
+                Console.SetCursorPosition(0, lineaActual + 1);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Error. Ingresa una hora valida (Ej.8:00AM)");
+                Console.ResetColor();
+            }
+        }
     }
 
 

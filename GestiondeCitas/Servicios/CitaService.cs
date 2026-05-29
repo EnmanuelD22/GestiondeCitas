@@ -20,7 +20,7 @@ namespace GestiondeCitas.Servicios
         public void Registrarcita(Cita cita)
         {
             var ci = citas.mostrar();
-            bool existe = ci.Any(c => c.medico._dni.Equals(cita.medico._dni, StringComparison.OrdinalIgnoreCase) 
+            bool existe = ci.Any(c => c.medico.dni.Equals(cita.medico.dni, StringComparison.OrdinalIgnoreCase) 
            &&
            c.fecha == cita.fecha
            );
@@ -28,7 +28,14 @@ namespace GestiondeCitas.Servicios
             if (ci.Any(c => c.medico == null) || ci.Any(c => c.paciente == null)){
                 Console.WriteLine("Error. La cita debe tener un paciente y un doctor asignado.");
                 return;
-            }                                                       
+            }
+
+            bool estaDispinible = validarDisponibilidad(cita.medico, cita.fecha, cita.hora);
+
+            if (!estaDispinible)
+            {
+                return;
+            }
 
             if (existe)
             {
@@ -47,7 +54,7 @@ namespace GestiondeCitas.Servicios
 
         }
 
-        public void Reprogramar(int id, DateTime nfecha)
+        public void Reprogramar(int id, DateOnly nfecha, TimeOnly nhora)
         {
             var ci = citas.mostrar();
             Cita? cita = ci.FirstOrDefault(c => c.id == id);
@@ -58,8 +65,8 @@ namespace GestiondeCitas.Servicios
                 return;
             }
 
-            bool existe = ci.Any(c => c.medico._dni == cita.medico._dni
-            && c.fecha == nfecha);
+            bool existe = ci.Any(c => c.medico.dni == cita.medico.dni
+            && c.fecha == nfecha && c.hora == nhora);
 
             if (existe)
             {
@@ -75,7 +82,7 @@ namespace GestiondeCitas.Servicios
         {
             var ci = citas.mostrar();
 
-            var resultado = ci.Where(c => c.paciente._dni.Equals(dni, 
+            var resultado = ci.Where(c => c.paciente.dni.Equals(dni, 
                 StringComparison.OrdinalIgnoreCase)).ToList();
 
             if (!resultado.Any())
@@ -92,7 +99,7 @@ namespace GestiondeCitas.Servicios
         {
             var ci = citas.mostrar();
 
-            var resultado = ci.Where(c => c.medico._dni.Equals(dni,
+            var resultado = ci.Where(c => c.medico.dni.Equals(dni,
                 StringComparison.OrdinalIgnoreCase)).ToList();
 
             if (!resultado.Any())
@@ -104,6 +111,32 @@ namespace GestiondeCitas.Servicios
             {
                 Console.WriteLine(c);
             }
+        }
+
+        public bool validarDisponibilidad(Medico medico, DateOnly fecha, TimeOnly hora)
+        {
+            if (hora < medico.Horainicio || hora > medico.Horafin)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error. La hora solicitada esta fuera del horario del medico.");
+                Console.ResetColor();
+                return false;
+            }
+
+            var ci = citas.mostrar();
+
+            bool ocupado = ci.Any(c =>
+            c.medico.dni.Equals(medico.dni, StringComparison.OrdinalIgnoreCase) &&
+            c.fecha == fecha && c.hora == hora && c.estado == "Pendiente");
+
+            if (ocupado)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Error. El Dr{medico.nombre} ya tiene una cita en este horario");
+                return false;
+            }
+
+            return true;
         }
     }
 }
