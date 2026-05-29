@@ -25,7 +25,12 @@ namespace GestiondeCitas.Servicios
            c.fecha == cita.fecha
            );
 
-            if ( existe)
+            if (ci.Any(c => c.medico == null) || ci.Any(c => c.paciente == null)){
+                Console.WriteLine("Error. La cita debe tener un paciente y un doctor asignado.");
+                return;
+            }                                                       
+
+            if (existe)
             {
                 Console.WriteLine($"Ya el Dr.{cita.medico.nombre} tiene una cita para esa fecha.");
                 return;
