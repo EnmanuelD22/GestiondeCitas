@@ -22,10 +22,6 @@ namespace GestiondeCitas.Modelos
             this.Horafin = Horafin; 
         }
 
-        public override string mostrar()
-        {
-            return $"Nombre: {nombre} (DNI: {dni}) | Tel: {telefono}" +
-                   $"Especialidad: {especialidad} | Horario: {Horainicio} a {Horafin}";
-        }
+       
     }
 }

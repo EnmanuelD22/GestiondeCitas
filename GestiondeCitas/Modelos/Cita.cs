@@ -45,7 +45,7 @@ namespace GestiondeCitas.Modelos
             "|                  DATOS PACIENTE                  |\n" +
             "+--------------------------------------------------+\n" +
             $"| Nombre         : {paciente.nombre,-30}|\n" +
-            $"| DNI            : {paciente.dni,-30}|\n" +
+            $"| DNI            : {paciente._dni,-30}|\n" +
             $"| Telefono       : {paciente.telefono,-30}|\n" +
             "+--------------------------------------------------+\n" +
 

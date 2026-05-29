@@ -20,7 +20,7 @@ namespace GestiondeCitas.Servicios
         public void Registrarcita(Cita cita)
         {
             var ci = citas.mostrar();
-            bool existe = ci.Any(c => c.medico.dni.Equals(cita.medico.dni, StringComparison.OrdinalIgnoreCase) 
+            bool existe = ci.Any(c => c.medico._dni.Equals(cita.medico._dni, StringComparison.OrdinalIgnoreCase) 
            &&
            c.fecha == cita.fecha
            );
@@ -58,7 +58,7 @@ namespace GestiondeCitas.Servicios
                 return;
             }
 
-            bool existe = ci.Any(c => c.medico.dni == cita.medico.dni
+            bool existe = ci.Any(c => c.medico._dni == cita.medico._dni
             && c.fecha == nfecha);
 
             if (existe)
@@ -75,7 +75,7 @@ namespace GestiondeCitas.Servicios
         {
             var ci = citas.mostrar();
 
-            var resultado = ci.Where(c => c.paciente.dni.Equals(dni, 
+            var resultado = ci.Where(c => c.paciente._dni.Equals(dni, 
                 StringComparison.OrdinalIgnoreCase)).ToList();
 
             if (!resultado.Any())
@@ -92,7 +92,7 @@ namespace GestiondeCitas.Servicios
         {
             var ci = citas.mostrar();
 
-            var resultado = ci.Where(c => c.medico.dni.Equals(dni,
+            var resultado = ci.Where(c => c.medico._dni.Equals(dni,
                 StringComparison.OrdinalIgnoreCase)).ToList();
 
             if (!resultado.Any())

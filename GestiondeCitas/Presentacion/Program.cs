@@ -58,6 +58,7 @@ class Program
 
     public static void RegistrarPaciente()
     {
+        
         Console.Clear();
         Console.WriteLine("╔═══════════════════════════════════════════════════════════════╗");
         Console.WriteLine("                   Ingrese el nuevo paciente                    ");
@@ -68,7 +69,10 @@ class Program
         string dni = Console.ReadLine();
         Console.Write("Tel: ");
         string telefono = Console.ReadLine();
-
+        Paciente paciente = new Paciente(nombre, dni, telefono);
+        pacientes.Guardar(paciente);
+        Console.WriteLine("Paciente agregado de manera exitosa.");
+        Console.ReadKey();
     }
     public static void RegistrarMedico()
     {

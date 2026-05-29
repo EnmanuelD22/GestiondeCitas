@@ -12,9 +12,6 @@ namespace GestiondeCitas.Modelos
         public Paciente(string nombre, string dni, string telefono)
             : base(nombre, dni, telefono) { }
 
-        public override string mostrar()
-        {
-            return $"{nombre} (DNI: {dni}) | Tel: {telefono}";
-        }
+        
     }
 }

@@ -21,7 +21,7 @@ namespace GestiondeCitas.Servicios
         public void Registrar(Medico medico)
         {
             var medicos = datos.mostrar();
-            bool existe = medicos.Any(m => m.dni ==  medico.dni);
+            bool existe = medicos.Any(m => m._dni ==  medico._dni);
 
             if (existe)
             {
