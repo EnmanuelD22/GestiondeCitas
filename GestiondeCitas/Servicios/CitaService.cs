@@ -41,7 +41,6 @@ namespace GestiondeCitas.Servicios
             var ci = citas.mostrar();
             Cita? cita = ci.FirstOrDefault(c => c.id == id);
             citas.Eliminar(cita);
-            Console.WriteLine("\nSe ha eliminado la cita de manera correcta.");
 
         }
 
