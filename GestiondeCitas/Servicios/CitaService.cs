@@ -26,7 +26,7 @@ namespace GestiondeCitas.Servicios
            );
 
             if (ci.Any(c => c.medico == null) || ci.Any(c => c.paciente == null)){
-                Console.WriteLine("Error. La cita debe tener un paciente y un doctor asignado.");
+                Console.WriteLine("\nError. La cita debe tener un paciente y un doctor asignado.");
                 return;
             }
 
@@ -39,7 +39,7 @@ namespace GestiondeCitas.Servicios
 
             if (existe)
             {
-                Console.WriteLine($"Ya el Dr.{cita.medico.nombre} tiene una cita para esa fecha.");
+                Console.WriteLine($"\nYa el Dr.{cita.medico.nombre} tiene una cita para esa fecha.");
                 return;
             }
             citas.Guardar(cita);
@@ -50,7 +50,7 @@ namespace GestiondeCitas.Servicios
             var ci = citas.mostrar();
             Cita? cita = ci.FirstOrDefault(c => c.id == id);
             citas.Eliminar(cita);
-            Console.WriteLine("Se ha eliminado la cita de manera correcta.");
+            Console.WriteLine("\nSe ha eliminado la cita de manera correcta.");
 
         }
 
@@ -61,7 +61,7 @@ namespace GestiondeCitas.Servicios
             
             if (cita == null)
             {
-                Console.WriteLine("No existe una cita este id.");
+                Console.WriteLine("\nNo existe una cita este id.");
                 return;
             }
 
@@ -70,12 +70,15 @@ namespace GestiondeCitas.Servicios
 
             if (existe)
             {
-                Console.WriteLine($"El Dr.{cita.medico.nombre} ya tiene una cita agendada en este horario");
+                Console.WriteLine($"\nEl Dr.{cita.medico.nombre} ya tiene una cita agendada en este horario");
                 return;
             }
 
-            citas.Eliminar(cita);
-            Console.WriteLine("Cita reprogramada correctamente");
+            cita.fecha = nfecha;
+            cita.hora = nhora;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\nCita reprogramada correctamente");
+            Console.ResetColor();
         }
         
         public void ConsultarPorPaciente(string dni)
@@ -87,7 +90,7 @@ namespace GestiondeCitas.Servicios
 
             if (!resultado.Any())
             {
-                Console.WriteLine("No hay citas asignadas para este paciente.");
+                Console.WriteLine("\nNo hay citas asignadas para este paciente.");
             }
 
             foreach (var c in resultado){
@@ -104,13 +107,14 @@ namespace GestiondeCitas.Servicios
 
             if (!resultado.Any())
             {
-                Console.WriteLine("No hay citas asignadas para este doctor.");
+                Console.WriteLine("\nNo hay citas asignadas para este doctor.");
             }
 
             foreach (var c in resultado)
             {
                 Console.WriteLine(c);
             }
+         
         }
 
         public bool validarDisponibilidad(Medico medico, DateOnly fecha, TimeOnly hora)
@@ -118,7 +122,7 @@ namespace GestiondeCitas.Servicios
             if (hora < medico.Horainicio || hora > medico.Horafin)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error. La hora solicitada esta fuera del horario del medico.");
+                Console.WriteLine("\nError. La hora solicitada esta fuera del horario del medico.");
                 Console.ResetColor();
                 return false;
             }
@@ -132,7 +136,7 @@ namespace GestiondeCitas.Servicios
             if (ocupado)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Error. El Dr{medico.nombre} ya tiene una cita en este horario");
+                Console.WriteLine($"\nError. El Dr{medico.nombre} ya tiene una cita en este horario");
                 return false;
             }
 

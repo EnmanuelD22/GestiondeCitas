@@ -25,10 +25,14 @@ namespace GestiondeCitas.Servicios
 
             if (existe)
             {
-                Console.WriteLine("Error. Este medico ya esta registrado.");
+                Console.WriteLine("\nError. Este medico ya esta registrado.");
                 return;
             }
             datos.Guardar(medico);
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\nEl medico fue guardado de manera exitosa.");
+            Console.ResetColor();
         }
 
 

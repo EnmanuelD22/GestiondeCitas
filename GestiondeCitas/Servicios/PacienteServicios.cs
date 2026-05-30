@@ -20,6 +20,9 @@ namespace GestiondeCitas.Servicios
         public void registrar(Paciente paciente)
         {
             pacientes.Guardar(paciente);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\nEl paciente fue guardado de manera exitosa.");
+            Console.ResetColor();
         }
     }
 }
