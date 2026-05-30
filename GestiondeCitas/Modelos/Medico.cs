@@ -13,7 +13,8 @@ namespace GestiondeCitas.Modelos
         public TimeOnly Horafin { get; set; }
 
         public Medico (string nombre,   
-             string dni, string telefono, Especialidad especialidad, TimeOnly Horainicio, TimeOnly Horafin) : base (nombre, dni, telefono)
+             string dni, string telefono, Especialidad especialidad, TimeOnly Horainicio, TimeOnly Horafin) :
+            base (nombre, dni, telefono)
         {
             this.especialidad = especialidad;
             this.Horainicio = Horainicio;

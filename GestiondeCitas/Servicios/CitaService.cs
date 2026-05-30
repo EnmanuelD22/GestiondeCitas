@@ -20,10 +20,6 @@ namespace GestiondeCitas.Servicios
         public void Registrarcita(Cita cita)
         {
             var ci = citas.mostrar();
-            bool existe = ci.Any(c => c.medico.dni.Equals(cita.medico.dni, StringComparison.OrdinalIgnoreCase) 
-           &&
-           c.fecha == cita.fecha
-           );
 
             if (ci.Any(c => c.medico == null) || ci.Any(c => c.paciente == null)){
                 Console.WriteLine("\nError. La cita debe tener un paciente y un doctor asignado.");
@@ -37,11 +33,6 @@ namespace GestiondeCitas.Servicios
                 return;
             }
 
-            if (existe)
-            {
-                Console.WriteLine($"\nYa el Dr.{cita.medico.nombre} tiene una cita para esa fecha.");
-                return;
-            }
             citas.Guardar(cita);
         }
 

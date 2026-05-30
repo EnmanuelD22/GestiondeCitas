@@ -14,9 +14,6 @@ namespace GestiondeCitas.Modelos
         public string nombre { get; set; }
        
         public string telefono { get; set; }
-        
-          
-        
 
         public Persona(string nombre, string dni, string telefono)
         {

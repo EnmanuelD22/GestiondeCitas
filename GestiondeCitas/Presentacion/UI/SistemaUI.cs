@@ -1,4 +1,5 @@
 ﻿using GestiondeCitas.Datos;
+using GestiondeCitas.Interfaces;
 using GestiondeCitas.Modelos;
 using GestiondeCitas.Servicios;
 using System;
@@ -19,13 +20,15 @@ namespace GestiondeCitas.Presentacion.UI
         private readonly DatosMedicos medicos = new DatosMedicos();
         private readonly DatosPacientes pacientes = new DatosPacientes();
 
-        private  NavegacionUI navegacion = new NavegacionUI();
-        private  EspecialidadService especialidadS;
-        private  MedicoServicios medicoS;
-        private  CitaService citaS;
-        private  PacienteServicios pacienteS;
-       public SistemaUI()
+        private NavegacionUI navegacion = new NavegacionUI();
+        private EspecialidadService especialidadS;
+        private MedicoServicios medicoS;
+        private CitaService citaS;
+        private PacienteServicios pacienteS;
+        private INotificacion notificacion;
+        public SistemaUI()
         {
+            notificacion = new NotificacionEmail();
             especialidadS = new EspecialidadService(especialidades);
             medicoS = new MedicoServicios(medicos);
             citaS = new CitaService(citas);
@@ -43,6 +46,7 @@ namespace GestiondeCitas.Presentacion.UI
             "Consultar Citas por Paciente",
             "Cancelar una Cita",
             "Reprogramar Cita",
+            "Enviar Recordatorio",
             "[Salir del Sistema]" };
 
             bool ejecutando = true;
@@ -61,16 +65,22 @@ namespace GestiondeCitas.Presentacion.UI
                     case 5: ConsultarporPaciente(); break;
                     case 6: CancelarCita(); break;
                     case 7: ReprogramarCita(); break;
-                    case 8: Console.Write("Seguro que quieres salir(s/n): ");
+                    case 8: EnviarRecordatorio(); break;
+                    case 9:
+                        Console.Write("Seguro que quieres salir(s/n): ");
                         char entrada = Console.ReadLine().ToLower()[0];
 
-                        if (entrada.Equals('s')) {
+                        if (entrada.Equals('s'))
+                        {
                             Console.WriteLine("Cerrando sistema.......");
                             ejecutando = false;
                             Console.Clear();
-                        } else if (entrada.Equals('n')) {
+                        }
+                        else if (entrada.Equals('n'))
+                        {
 
-                        } else
+                        }
+                        else
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine("\nError seleccion fuera de rango.");
@@ -82,18 +92,47 @@ namespace GestiondeCitas.Presentacion.UI
 
         }
 
-        private void RegistrarPaciente()
+        private void EnviarRecordatorio()
         {
-            
             Console.Clear();
             Console.WriteLine("╔═══════════════════════════════════════════════════════════════╗");
-            Console.WriteLine("                   Ingrese el nuevo paciente                    ");
+            Console.WriteLine("                          Enviar Recordatorio                    ");
+            Console.WriteLine("╚═══════════════════════════════════════════════════════════════╝");
+            Console.Write("Ingrese un email: ");
+            string email = CapturarEmail();
+
+            var citaEncotrada = citas.mostrar().FirstOrDefault(c =>
+            c.paciente.email.Equals(email, StringComparison.OrdinalIgnoreCase));
+
+            if (citaEncotrada == null) {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\nNo existe paciente registrado con este email.");
+                Console.ResetColor();
+                Console.ReadKey();
+                return;
+            }   
+            string mensaje = $"\nRecuerda tu cita con el Dr.{citaEncotrada.medico.nombre}" +
+                                $"\nPara el {citaEncotrada.fecha} a las {citaEncotrada.hora}";
+            notificacion.enviar(email, mensaje);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\nRecordatorio enviado exitosamente.");
+            Console.ResetColor();
+            Console.ReadKey();
+        }
+
+        private void RegistrarPaciente()
+        {
+
+            Console.Clear();
+            Console.WriteLine("╔═══════════════════════════════════════════════════════════════╗");
+            Console.WriteLine("                          Nuevo paciente                         ");
             Console.WriteLine("╚═══════════════════════════════════════════════════════════════╝");
             Console.Write("Nombre: ");
             string nombre = Console.ReadLine();
             string dni = CapturarCedula();
             string tel = CapturarTelefono();
-            Paciente paciente = new Paciente(nombre, dni, tel);
+            string email = CapturarEmail();
+            Paciente paciente = new Paciente(nombre, dni, tel, email);
             pacienteS.registrar(paciente);
             Console.ReadKey();
         }
@@ -103,7 +142,7 @@ namespace GestiondeCitas.Presentacion.UI
             MedicoServicios medi = new MedicoServicios(medicos);
             Console.Clear();
             Console.WriteLine("╔═══════════════════════════════════════════════════════════════╗");
-            Console.WriteLine("                    Ingrese la nueva Médico                      ");
+            Console.WriteLine("                           Nuevo Médico                          ");
             Console.WriteLine("╚═══════════════════════════════════════════════════════════════╝");
             Console.Write("Nombre: ");
             string nombre = Console.ReadLine();
@@ -124,7 +163,7 @@ namespace GestiondeCitas.Presentacion.UI
             TimeOnly horaInicio = CapturarHora("Hora de Entrada (Ej. 08:00 AM):");
             TimeOnly horaFin = CapturarHora("Hora de Salida (Ej. 05:00 PM):");
 
-            Medico dr = new Medico(nombre, dni, tel, esp, horaInicio, horaFin);
+            Medico dr = new Medico(nombre, dni, tel,  esp, horaInicio, horaFin);
             medi.Registrar(dr);
             Console.ReadKey();
         }
@@ -176,13 +215,19 @@ namespace GestiondeCitas.Presentacion.UI
             Console.Write("Ingrese el id de la cita: ");
             int id = int.Parse(Console.ReadLine());
 
-            if (id == null)
+            if (!int.TryParse(Console.ReadLine(), out int num))
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("\nCita reprogramada de manera exitosa.");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\nError. Debe ingrese un numero valido.");
                 Console.ResetColor();
                 Console.ReadKey();
+                return;
             }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\nCita reprogramada de manera exitosa.");
+            Console.ResetColor();
+            Console.ReadKey();
 
             cita.Cancelar(id);
             Console.ForegroundColor = ConsoleColor.Green;
@@ -190,7 +235,7 @@ namespace GestiondeCitas.Presentacion.UI
             Console.ResetColor();
             Console.ReadKey();
         }
-        private  void ReprogramarCita()
+        private void ReprogramarCita()
         {
             CitaService cita = new CitaService(citas);
             Console.Clear();
@@ -204,7 +249,7 @@ namespace GestiondeCitas.Presentacion.UI
             cita.Reprogramar(id, fechaNueva, horaNueva);
             Console.ReadKey();
         }
-        private  void AgendarCita()
+        private void AgendarCita()
         {
             CitaService cita = new CitaService(citas);
 
@@ -491,6 +536,38 @@ namespace GestiondeCitas.Presentacion.UI
                     Console.SetCursorPosition(0, indiceActual + 1);
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Write("\nError. Ingresa una fecha válida (Ej. 25/10/2026)");
+                    Console.ResetColor();
+                }
+            }
+        }
+
+        private string CapturarEmail()
+        {
+            int indiceActual = Console.CursorTop;
+
+            while (true)
+            {
+                Console.SetCursorPosition(0, indiceActual);
+                Console.Write(new string(' ', Console.WindowWidth - 1));
+
+                Console.SetCursorPosition(0, indiceActual);
+                Console.Write("Email: ");
+                string entrada = Console.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(entrada) &&
+                    entrada.Contains("@") && entrada.Contains("."))
+                {
+                    Console.SetCursorPosition(0, indiceActual + 1);
+                    Console.Write(new string(' ', Console.WindowWidth - 1));
+                    return entrada;
+                }
+                else
+                {
+                    Console.SetCursorPosition(0, indiceActual + 1);
+                    Console.Write(new string(' ', Console.WindowWidth - 1));
+
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\nError. Debe agregar un email valido.");
                     Console.ResetColor();
                 }
             }

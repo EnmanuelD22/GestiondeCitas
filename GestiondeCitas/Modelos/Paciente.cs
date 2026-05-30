@@ -9,9 +9,10 @@ namespace GestiondeCitas.Modelos
 {
     public class Paciente : Persona
     {
-        public Paciente(string nombre, string dni, string telefono)
-            : base(nombre, dni, telefono) { }
-
-        
+        public string email;
+        public Paciente(string nombre, string dni, string telefono, string email)
+            : base(nombre, dni, telefono) {
+            this.email = email;
+        }
     }
 }
