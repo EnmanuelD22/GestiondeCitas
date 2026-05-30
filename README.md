@@ -1,3 +1,7 @@
+Estudiante: Enmanuel Antonio Tejada Diaz
+
+Matricula: 2025-2050
+
 Aqui estan las imagenes del programa en ejecución 
 
 Este es el menu:
