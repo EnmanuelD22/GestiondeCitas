@@ -213,9 +213,9 @@ namespace GestiondeCitas.Presentacion.UI
             Console.WriteLine("                         Cancelar Cita                           ");
             Console.WriteLine("╚═══════════════════════════════════════════════════════════════╝");
             Console.Write("Ingrese el id de la cita: ");
-            int id = int.Parse(Console.ReadLine());
+            string entrada = Console.ReadLine();
 
-            if (!int.TryParse(Console.ReadLine(), out int num))
+            if (!int.TryParse(entrada, out int id))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("\nError. Debe ingrese un numero valido.");
@@ -223,11 +223,6 @@ namespace GestiondeCitas.Presentacion.UI
                 Console.ReadKey();
                 return;
             }
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\nCita reprogramada de manera exitosa.");
-            Console.ResetColor();
-            Console.ReadKey();
 
             cita.Cancelar(id);
             Console.ForegroundColor = ConsoleColor.Green;
@@ -243,7 +238,15 @@ namespace GestiondeCitas.Presentacion.UI
             Console.WriteLine("                        Reprogramar Cita                         ");
             Console.WriteLine("╚═══════════════════════════════════════════════════════════════╝");
             Console.Write("Ingrese el id de la cita: ");
-            int id = int.Parse(Console.ReadLine());
+            string entrada = Console.ReadLine();
+            if (!int.TryParse(entrada, out int id))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\nError. Debe ingrese un numero valido.");
+                Console.ResetColor();
+                Console.ReadKey();
+                return;
+            }
             DateOnly fechaNueva = CapturarFecha();
             TimeOnly horaNueva = CapturarHora("Hora (Ej.10:00 AM): ");
             cita.Reprogramar(id, fechaNueva, horaNueva);
